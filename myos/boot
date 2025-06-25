@@ -1,0 +1,23 @@
+; boot.asm - bootloader (NASM syntax)
+
+[org 0x7C00]           ; BIOS loads us here
+
+mov ah, 0x0E           ; BIOS teletype output
+mov si, message
+
+print_loop:
+    lodsb              ; load byte at DS:SI into AL, increment SI
+    or al, al          ; check if zero (end of string)
+    jz halt
+    int 0x10           ; BIOS interrupt to print AL
+    jmp print_loop
+
+halt:
+    cli                ; disable interrupts
+    hlt                ; halt CPU
+    jmp halt           ; infinite loop
+
+message db 'this is nilanios created by Nilani.', 0
+
+times 510-($-$$) db 0  ; fill up to 510 bytes
+dw 0xAA55              ; boot signature
